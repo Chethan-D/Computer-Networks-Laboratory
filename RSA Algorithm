@@ -1,53 +1,45 @@
-Key Generation
-import java.util.*;
-import java.math.BigInteger;
-import java.lang.*;
-class RSA
+package javaprojects;
+import java.security.*;
+import java.io.*;
+import javax.crypto.Cipher;
+public class RSA 
 {
-public static void main(String[] args)
-{
-Random r = new Random();
-Random r2 = new Random();
-int e = Integer.parseInt(args[0]);
-BigInteger p = BigInteger.probablePrime(4,r);
-BigInteger q = BigInteger.probablePrime(4,r2);
-BigInteger n = p.multiply(q);
-BigInteger p1 = p.subtract(new BigInteger("1"));
-BigInteger q1 = q.subtract(new BigInteger("1"));
-BigInteger phi = p1.multiply(q1);
-while(true)
-{
-BigInteger GCD = phi.gcd(new BigInteger(""+e));
-if(GCD.equals(BigInteger.ONE))
-{
-break;
-}
-e++;
-}
-BigInteger a = new BigInteger(""+e);
-BigInteger d = a.modInverse(phi);
-System.out.println("public key:"+a+","+n);
-System.out.println("Detection key:"+d+","+n);
-}
-}
-
-
-
-Encryption and Decryption
-import java.util.*;
-import java.math.BigInteger;
-import java.lang.*;
-class ed {
-public static void main(String[] args) {
-BigInteger pubKey = new BigInteger(args[0]);
- BigInteger prvKey = new BigInteger(args[1]);
-BigInteger n = new BigInteger(args[2]);
- int asciiVal = Integer.parseInt(args[3]);
- BigInteger val = new BigInteger(""+ asciiVal);
- BigInteger cKey = val.modPow(pubKey,n);
-System.out.println("Cipher Text: " + cKey);
-BigInteger pVal = cKey.modPow(prvKey,n);
-int Pval = pVal.intValue();
-System.out.println("Plain text: " + Pval);
-}
+	public static void main(String args[])
+	{
+		String srci="";
+		try
+		{
+			BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+			System.out.println("Please enter any string you want to encrypt");
+			srci=br.readLine();
+		}
+		catch(IOException ioe)
+		{
+			System.out.println(ioe.getMessage());
+		}
+		try
+		{
+			KeyPairGenerator kpg=KeyPairGenerator.getInstance("RSA");
+			kpg.initialize(512);//initialize key pairs to 512 bits ,you can also take 1024 or 2048 bits
+			KeyPair kp=kpg.genKeyPair();
+			PublicKey publi=kp.getPublic();
+			Cipher cipher = Cipher.getInstance("RSA");
+			cipher.init(Cipher.ENCRYPT_MODE, publi);
+			byte[]src=srci.getBytes();//converting source data into byte array
+			byte[] cipherData = cipher.doFinal(src);//use this method to finally encrypt data
+			String srco=new String(cipherData);//converting byte array into string
+			System.out.println();
+			System.out.println("Encrypted data is:-"+srco);
+			PrivateKey privatei=kp.getPrivate();//Generating private key
+			Cipher cipheri=Cipher.getInstance("RSA");//Intializing 2nd instance of Cipher class	
+			cipheri.init(Cipher.DECRYPT_MODE, privatei);//Setting to decrypt_mode
+			byte[] cipherDat = cipheri.doFinal(cipherData);//Finally decrypting data
+			String decryptdata=new String(cipherDat);
+			System.out.println("Decrypted data:-"+decryptdata);
+		}
+		catch(Exception e)
+		{
+			System.out.println(e.getMessage());
+		}
+	}
 }
